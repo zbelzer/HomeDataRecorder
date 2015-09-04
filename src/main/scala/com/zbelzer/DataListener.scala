@@ -20,9 +20,6 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.slf4j.LoggerFactory
 import slick.driver.PostgresDriver.api._
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-
 class DataListener(val db: Database) extends IDataReceiveListener {
   val mapper: ObjectMapper = new ObjectMapper
   mapper.registerModule(DefaultScalaModule)
@@ -34,6 +31,7 @@ class DataListener(val db: Database) extends IDataReceiveListener {
       val bytes = xbeeMessage.getData
 
       logger.debug(new String(bytes))
+      println(new String(bytes))
 
       val message = mapper.readValue(bytes, classOf[Message])
 
@@ -51,7 +49,7 @@ class DataListener(val db: Database) extends IDataReceiveListener {
 
       }
 
-      Await.result(db.run(DBIO.seq(op)), Duration.Inf)
+      db.run(DBIO.seq(op))
     }
     catch {
       case e: Exception => {

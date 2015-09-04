@@ -1,6 +1,7 @@
+package com.zbelzer
+
 import com.digi.xbee.api.XBeeDevice
 import com.digi.xbee.api.exceptions.InvalidOperatingModeException
-import com.zbelzer.{DataListener, Tables}
 import org.postgresql.util.PSQLException
 import slick.driver.PostgresDriver.api._
 
