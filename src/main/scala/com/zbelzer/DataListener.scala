@@ -19,6 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.slf4j.LoggerFactory
 import slick.driver.PostgresDriver.api._
+import scala.concurrent.ExecutionContext
+import scala.util.Success
+import scala.util.Failure
+
+import ExecutionContext.Implicits.global
 
 class DataListener(val db: Database) extends IDataReceiveListener {
   val mapper: ObjectMapper = new ObjectMapper
@@ -55,7 +60,10 @@ class DataListener(val db: Database) extends IDataReceiveListener {
 
       }
 
-      db.run(DBIO.seq(op))
+      db.run(DBIO.seq(op).asTry).foreach {
+        case Success(res) => println(res)
+        case Failure(e) => println(e)
+      }
     }
     catch {
       case e: Exception => {
