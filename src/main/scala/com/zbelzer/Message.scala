@@ -17,29 +17,33 @@ trait Message
 case class Event(
   id: Option[Long] = None,
   created: Timestamp,
+  source: String,
   name: String,
   value: String) extends Message
 
 case class Metric(
   id: Option[Long] = None,
   created: Timestamp,
+  source: String,
   name: String,
   value: Double) extends Message
 
 class Metrics(tag: Tag) extends Table[Metric](tag, "metrics") {
   def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
   def created = column[Timestamp]("created")
+  def source = column[String]("source")
   def name = column[String]("name")
   def value = column[Double]("value")
 
-  def * = (id.?, created, name, value) <> (Metric.tupled, Metric.unapply)
+  def * = (id.?, created, source, name, value) <> (Metric.tupled, Metric.unapply)
 }
 
 class Events(tag: Tag) extends Table[Event](tag, "events") {
   def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
   def created = column[Timestamp]("created")
+  def source = column[String]("source")
   def name = column[String]("name")
   def value = column[String]("value")
 
-  def * = (id.?, created, name, value) <> (Event.tupled, Event.unapply)
+  def * = (id.?, created, source, name, value) <> (Event.tupled, Event.unapply)
 }

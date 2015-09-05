@@ -16,18 +16,17 @@ object Main extends App {
   require(!PORT.isEmpty, "A port set through serial.port is required")
 
   val xbee = new XBeeDevice(PORT, BAUD_RATE.toInt)
-  val db = Database.forConfig("mydb")
+  val db = Database.forConfig("keggerator")
 
   try {
     try {
       val dbSchema = Tables.metrics.schema ++ Tables.events.schema
-      println(dbSchema.create.statements.head)
       Await.result(db.run(dbSchema.create), Duration.Inf)
 
     } catch {
       case e: PSQLException => {
         if (e.getMessage.contains("already exists")) {
-          println("Assuming already created")
+          println("Database already initialized")
         } else {
           e.printStackTrace()
           System.exit(-1)

@@ -29,20 +29,26 @@ class DataListener(val db: Database) extends IDataReceiveListener {
   override def dataReceived(xbeeMessage: XBeeMessage) {
     try {
       val bytes = xbeeMessage.getData
+      val nodeId = xbeeMessage.getDevice.getNodeID
 
       logger.debug(new String(bytes))
-      println(new String(bytes))
 
       val message = mapper.readValue(bytes, classOf[Message])
 
       val op = message match {
         case metricData: Metric => {
-          val metric = metricData.copy(created = new Timestamp(System.currentTimeMillis()))
+          val metric = metricData.copy(
+            source = nodeId,
+            created = new Timestamp(System.currentTimeMillis())
+          )
 
           Tables.metrics += metric
         }
         case eventData: Event => {
-          val event = eventData.copy(created = new Timestamp(System.currentTimeMillis()))
+          val event = eventData.copy(
+            source = nodeId,
+            created = new Timestamp(System.currentTimeMillis())
+          )
 
           Tables.events += event
         }
