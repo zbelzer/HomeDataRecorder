@@ -9,11 +9,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 object Main extends App {
-  val PORT = "/dev/tty.usbserial-DA011NL3"
-  //  val PORT = "/dev/tty.usbserial-DA013OL0"
-  val BAUD_RATE = 9600
+  val PORT = System.getProperty("serial.port", "")
+  val BAUD_RATE = System.getProperty("serial.baudRate", "")
 
-  val xbee = new XBeeDevice(PORT, BAUD_RATE)
+  require(!BAUD_RATE.isEmpty, "A serial baud rate set through serial.baudRate is required")
+  require(!PORT.isEmpty, "A port set through serial.port is required")
+
+  val xbee = new XBeeDevice(PORT, BAUD_RATE.toInt)
   val db = Database.forConfig("mydb")
 
   try {
