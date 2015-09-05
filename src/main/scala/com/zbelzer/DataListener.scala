@@ -34,7 +34,15 @@ class DataListener(val db: Database) extends IDataReceiveListener {
   override def dataReceived(xbeeMessage: XBeeMessage) {
     try {
       val bytes = xbeeMessage.getData
-      val nodeId = xbeeMessage.getDevice.getNodeID
+      val device = xbeeMessage.getDevice
+      val nodeId = device.getNodeID
+
+      val sourceId =
+        if (nodeId == null) {
+          device.get64BitAddress.toString
+        } else {
+          nodeId
+        }
 
       logger.debug(new String(bytes))
 
@@ -43,7 +51,7 @@ class DataListener(val db: Database) extends IDataReceiveListener {
       val op = message match {
         case metricData: Metric => {
           val metric = metricData.copy(
-            source = nodeId,
+            source = sourceId,
             created = new Timestamp(System.currentTimeMillis())
           )
 
@@ -51,7 +59,7 @@ class DataListener(val db: Database) extends IDataReceiveListener {
         }
         case eventData: Event => {
           val event = eventData.copy(
-            source = nodeId,
+            source = sourceId,
             created = new Timestamp(System.currentTimeMillis())
           )
 
@@ -61,8 +69,8 @@ class DataListener(val db: Database) extends IDataReceiveListener {
       }
 
       db.run(DBIO.seq(op).asTry).foreach {
-        case Success(res) => println(res)
         case Failure(e) => println(e)
+        case Success(e) => ;
       }
     }
     catch {
